@@ -64,12 +64,13 @@ export class HeroService {
     const url = `${this.heroesUrl}/${id}`
     return this.http.get<Hero>(url).pipe(
         tap(_ => this.log('fetched hero id=${id}')),
-        catchError(this.handleError( `getHero id=${id}`))
+        catchError(this.handleError<Hero>( `getHero id=${id}`))
       );
   }
 
 
 //updating/save/deleting methods
+//updates the "server/db" but doesnt persist over refreshes, just after navigating around the page, it persists
   updateHero (hero: Hero): Observable<any> {
     return this.http.put(this.heroesUrl, hero, httpOptions).pipe(
       tap(_ => this.log(`updated hero id=${hero.id}`)),
