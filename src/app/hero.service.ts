@@ -70,6 +70,7 @@ export class HeroService {
 
 
 //updating/save/deleting methods
+//updates the "server/db" but doesnt persist over refreshes, just after navigating around the page, it persists
   updateHero (hero: Hero): Observable<any> {
     return this.http.put(this.heroesUrl, hero, httpOptions).pipe(
       tap(_ => this.log(`updated hero id=${hero.id}`)),
