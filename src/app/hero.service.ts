@@ -15,7 +15,11 @@ const httpOptions = {
 })
 export class HeroService {
 
+  private heroesUrl = 'api/heroes';
 
+  constructor(
+    private http: HttpClient,
+    private messageService: MessageService) { }
 
   // getHeroes(): Observable<Hero[]> {
   //   this.messageService.add('Hero Service: fetched heroes');
@@ -35,6 +39,21 @@ export class HeroService {
   //   return of(HEROES.find(hero => hero.id === id));
   // }
 
+  //GET hero by id. Return `undefined` when id not found
+  getHeroNo404<Data>(id: number): Observable<Hero> {
+  const url = `${this.heroesUrl}/?id=${id}`;
+  return this.http.get<Hero[]>(url)
+    .pipe(
+      map(heroes => heroes[0]),
+      tap(h => {
+        const outcome = h ? `fetched` : `did not find`;
+        this.log(`${outcome} hero id=${id}`);
+      }),
+      catchError(this.handleError<Hero>(`getHero id=${id}`))
+    );
+}
+
+// GET hero by id. Will 404 if id not found
   getHero(id: number): Observable<Hero> {
     const url = `${this.heroesUrl}/${id}`
     return this.http.get<Hero>(url).pipe(
@@ -47,7 +66,7 @@ export class HeroService {
     return this.http.put(this.heroesUrl, hero, httpOptions).pipe(
       tap(_ => this.log(`updated hero id=${hero.id}`)),
       catchError(this.handleError<any>('updateHero'))
-    )
+    );
   }
 
   addHero (hero: Hero): Observable<Hero> {
@@ -69,7 +88,7 @@ export class HeroService {
 
     searchHeroes(term: string): Observable<Hero[]> {
       if (!term.trim()) {
-        return of( [] );
+        return of([]);
       }
 
       return this.http.get<Hero[]>(`${this.heroesUrl}/?name=${term}`).pipe(
@@ -77,12 +96,7 @@ export class HeroService {
         catchError(this.handleError<Hero[]>('searchHeroes', []))
       );
     }
-  }
-
-
-
-  private heroesUrl = 'api/heroes';
-
+  
   private log(message: string){
     this.messageService.add(`HeroService: ${message}`);
   }
@@ -100,8 +114,5 @@ export class HeroService {
     }
   }
 
-  constructor(
-    private http: HttpClient,
-    private messageService: MessageService
-  ) { }
+
 }
